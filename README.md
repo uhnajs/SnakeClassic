@@ -28,7 +28,7 @@ python snake_game.py
 - Gra się kończy, gdy wąż uderzy w ścianę lub w siebie.
 
 ## Dodatkowe Funkcje
-- Możesz dodać różne poziomy trudności, zmieniając szybkość węża.
-- Dodaj tablicę wyników, aby śledzić najlepsze wyniki.
+- (Wkrótce) Różne poziomy trudności, zmieniając szybkość węża.
+- (Wkrótce) Dodaj tablicę wyników, aby śledzić najlepsze wyniki.
 
 
