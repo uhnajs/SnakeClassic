@@ -43,21 +43,21 @@ def prompt_for_name():
             if event.type == pygame.QUIT:
                 pygame.quit()
                 quit()
-            if event.type == pygame.KEYDOWN:
-                if event.key == pygame.K_RETURN:
+            elif event.type == pygame.KEYDOWN:
+                if event.key == pygame.K_RETURN and name != "":
                     return name
                 elif event.key == pygame.K_BACKSPACE:
                     name = name[:-1]
                 else:
-                    name += event.unicode
-
+                    if len(name) < 10:  # Ogranicz długość nazwy do 10 znaków
+                        name += event.unicode
         gameDisplay.fill(white)
-        message("Enter your name:", black, 100, display_height / 4)
         block = score_font.render(name, True, black)
         rect = block.get_rect(center=(display_width / 2, display_height / 2))
         gameDisplay.blit(block, rect)
         pygame.display.update()
         clock.tick(15)
+
 
 
 def show_scores():
@@ -172,13 +172,14 @@ def gameLoop():
         clock.tick(snake_speed)
 
     if game_close:
+        pygame.time.delay(500)
         player_name = prompt_for_name()
-        scores_list.append((player_name, Length_of_snake - 1))
-        show_scores()  #
+        if player_name:
+            scores_list.append((player_name, Length_of_snake - 1))
+            show_scores()
         game_over = True
 
     if game_over:
-        show_scores()
         main_menu()
 
 
