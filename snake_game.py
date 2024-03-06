@@ -25,17 +25,7 @@ snake_speed = 15
 font_style = pygame.font.SysFont("bahnschrift", 25)
 score_font = pygame.font.SysFont("comicsansms", 35)
 
-
-def message(msg, color, x_displace, y_displace):
-    mesg = font_style.render(msg, True, color)
-    gameDisplay.blit(mesg, [x_displace, y_displace])
-
-def our_snake(snake_block, snake_list):
-    for x in snake_list:
-        pygame.draw.rect(gameDisplay, black, [x[0], x[1], snake_block, snake_block])
-
 scores_list = []
-
 def your_score(score, y_offset):
     value = score_font.render("Your Score: " + str(score), True, red)
     gameDisplay.blit(value, [0, y_offset])
@@ -46,16 +36,60 @@ def draw_borders(border_color, border_width):
     pygame.draw.rect(gameDisplay, border_color, [display_width - border_width, 0, border_width, display_height])  # Prawa ramka
     pygame.draw.rect(gameDisplay, border_color, [0, display_height - border_width, display_width, border_width])  # Dolna ramka
 
+def prompt_for_name():
+    name = ""
+    while True:
+        for event in pygame.event.get():
+            if event.type == pygame.QUIT:
+                pygame.quit()
+                quit()
+            if event.type == pygame.KEYDOWN:
+                if event.key == pygame.K_RETURN:
+                    return name
+                elif event.key == pygame.K_BACKSPACE:
+                    name = name[:-1]
+                else:
+                    name += event.unicode
+
+        gameDisplay.fill(white)
+        message("Enter your name:", black, 100, display_height / 4)
+        block = score_font.render(name, True, black)
+        rect = block.get_rect(center=(display_width / 2, display_height / 2))
+        gameDisplay.blit(block, rect)
+        pygame.display.update()
+        clock.tick(15)
+
+
 def show_scores():
     gameDisplay.fill(white)
-    message("Lista Wyników", black)
-    y_offset = 40
-    for score in scores_list:
-        score_message = score_font.render(str(score), True, black)
-        gameDisplay.blit(score_message, [display_width / 2, y_offset])
+    message("Lista Wyników", black, 100, display_height // 4)
+    y_offset = display_height // 3
+    for name, score in sorted(scores_list, key=lambda x: x[1], reverse=True):
+        score_message = score_font.render(f"{name}: {score}", True, black)
+        gameDisplay.blit(score_message, [display_width // 6, y_offset])
         y_offset += 30
     pygame.display.update()
-    time.sleep(5)
+    waiting_for_input = True
+    while waiting_for_input:
+        for event in pygame.event.get():
+            if event.type == pygame.QUIT:
+                pygame.quit()
+                quit()
+            elif event.type == pygame.KEYDOWN:
+                if event.key == pygame.K_ESCAPE:
+                    waiting_for_input = False
+
+    main_menu()
+
+
+
+def our_snake(snake_block, snake_list):
+    for x in snake_list:
+        pygame.draw.rect(gameDisplay, black, [x[0], x[1], snake_block, snake_block])
+
+
+
+
 
 
 def gameLoop():
@@ -75,19 +109,19 @@ def gameLoop():
     foody = round(random.randrange(0, display_height - snake_block) / 10.0) * 10.0
 
     while not game_over:
-
         while game_close:
             gameDisplay.fill(white)
-            message("You lost! Press Q-Quit or C-Play Again", red, display_width // 6, display_height // 3)
+            message("You lost! Press C-Play Again or Q-Quit", red, 50, display_height // 3)
             pygame.display.update()
 
             for event in pygame.event.get():
                 if event.type == pygame.KEYDOWN:
-                    if event.key == pygame.K_q:
-                        game_over = True
-                        game_close = False
                     if event.key == pygame.K_c:
-                        gameLoop()
+                        game_close = False
+                        return
+                    if event.key == pygame.K_q:
+                        pygame.quit()
+                        quit()
 
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
@@ -137,14 +171,29 @@ def gameLoop():
 
         clock.tick(snake_speed)
 
-    pygame.quit()
-    quit()
+    if game_close:
+        player_name = prompt_for_name()
+        scores_list.append((player_name, Length_of_snake - 1))
+        show_scores()  #
+        game_over = True
+
+    if game_over:
+        show_scores()
+        main_menu()
+
+
+def message(msg, color, x_displace, y_displace):
+    mesg = font_style.render(msg, True, color)
+    gameDisplay.blit(mesg, [x_displace, y_displace])
 
 def main_menu():
     menu_active = True
     while menu_active:
         gameDisplay.fill(white)
-        message("N - Nowa Gra, L - Lista Wyników, ESC - Wyjście", black, display_width // 6, display_height // 2)
+        # Dostosuj położenie i treść komunikatów w menu głównym
+        message("N - Nowa Gra", black, display_width // 6, display_height // 3)
+        message("L - Lista Wyników", black, display_width // 6, display_height // 3 + 30)
+        message("ESC - Wyjście", black, display_width // 6, display_height // 3 + 60)
         pygame.display.update()
         clock.tick(15)
 
